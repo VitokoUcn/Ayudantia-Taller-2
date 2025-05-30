@@ -24,9 +24,9 @@ export const obtenerClientes = (req, res) => {
     res.json(results);
   };
 
-  if (type === 'normal') {
+  if (type === '1') {
     getClientesNormales(callback);
-  } else if (type === 'premium') {
+  } else if (type === '2') {
     getClientesPremium(callback);
   } else {
     getAllClientes(callback);

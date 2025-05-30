@@ -17,8 +17,8 @@ const router = Router();
  *  (internamente usan el mismo controlador con un filtro `type`)
  */
 router.get('/',                  obtenerClientes);
-router.get('/normales',          (req, res, next) => { req.query.type = 'normal';   next(); }, obtenerClientes);
-router.get('/premium',           (req, res, next) => { req.query.type = 'premium';  next(); }, obtenerClientes);
+router.get('/normales',          (req, res, next) => { req.query.type = '1';   next(); }, obtenerClientes);
+router.get('/premium',           (req, res, next) => { req.query.type = '2';  next(); }, obtenerClientes);
 
 /**  
  * 6. Actualizar estado de un cliente  

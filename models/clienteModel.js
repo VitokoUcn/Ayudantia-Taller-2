@@ -14,7 +14,7 @@ export const getAllClientes = (callback) => {
  */
 export const getClientesNormales = (callback) => {
   const sql = 'SELECT * FROM Cliente WHERE tipo = ?';
-  db.query(sql, ['normal'], callback);
+  db.query(sql, ['1'], callback);
 };
 
 /**
@@ -22,7 +22,7 @@ export const getClientesNormales = (callback) => {
  */
 export const getClientesPremium = (callback) => {
   const sql = 'SELECT * FROM Cliente WHERE tipo = ?';
-  db.query(sql, ['premium'], callback);
+  db.query(sql, ['2'], callback);
 };
 
 /**
@@ -38,8 +38,8 @@ export const getClienteById = (id, callback) => {
  *    (por defecto tipo = 'normal' si no viene)
  */
 export const createCliente = (clienteData, callback) => {
-  const { nombre, email, tipo = 'normal' } = clienteData;
-  const sql = 'INSERT INTO Cliente (nombre, email, tipo) VALUES (?, ?, ?)';
+  const { nombre, ciudad, tipo = 'normal' } = clienteData;
+  const sql = 'INSERT INTO Cliente (nombre, ciudad, tipo) VALUES (?, ?, ?)';
   db.query(sql, [nombre, email, tipo], callback);
 };
 
@@ -48,8 +48,8 @@ export const createCliente = (clienteData, callback) => {
  */
 export const updateCliente = (id, clienteData, callback) => {
   const { nombre, email } = clienteData;
-  const sql = 'UPDATE Cliente SET nombre = ?, email = ? WHERE id = ?';
-  db.query(sql, [nombre, email, id], callback);
+  const sql = 'UPDATE Cliente SET nombre = ?, ciudad = ? WHERE id = ?';
+  db.query(sql, [nombre, ciudad, id], callback);
 };
 
 /**
