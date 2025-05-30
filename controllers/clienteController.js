@@ -1,4 +1,8 @@
-// src/controllers/clienteController.js
+// Controlador de Clientes:
+// Define las funciones que manejan la lógica de negocio para las rutas de clientes,
+// conectando las peticiones con el modelo (base de datos).
+
+// Importamos las funciones del modelo que interactúan con la base de datos.
 import {
   getAllClientes,
   getClientesNormales,
@@ -11,10 +15,11 @@ import {
 } from '../models/clienteModel.js';
 
 /**
- * 11 / 9 / 10. Listar clientes:
- * - Todos:      GET /api/cliente
- * - Normales:   GET /api/cliente?type=normal  o bien GET /api/cliente/normales
- * - Premium:    GET /api/cliente?type=premium o bien GET /api/cliente/premium
+ * Listar clientes.
+ * - Si se pasa query type=1: solo clientes normales.
+ * - Si type=2: solo clientes premium.
+ * - Si no hay type: todos los clientes.
+ * Endpoint: GET /api/cliente?type={1|2}
  */
 export const obtenerClientes = (req, res) => {
   const type = req.query.type; // '1', '2' o undefined
@@ -34,7 +39,10 @@ export const obtenerClientes = (req, res) => {
 };
 
 /**
- * Obtener un cliente por su ID
+ * Obtener un cliente por ID.
+ * - Lee el parámetro :id de la ruta.
+ * - Devuelve 404 si no existe.
+ * Endpoint: GET /api/cliente/:id
  */
 export const obtenerClientePorId = (req, res) => {
   const { id } = req.params;
@@ -48,7 +56,10 @@ export const obtenerClientePorId = (req, res) => {
 };
 
 /**
- * 7. Registrar un nuevo cliente
+ * Registrar un nuevo cliente.
+ * - Espera en req.body un objeto { nombre, ciudad, tipo }.
+ * - Inserta el registro y devuelve el insertId.
+ * Endpoint: POST /api/cliente
  */
 export const registrarCliente = (req, res) => {
   createCliente(req.body, (err, result) => {
@@ -60,7 +71,10 @@ export const registrarCliente = (req, res) => {
 };
 
 /**
- * 2. Actualizar datos completos de un cliente
+ * Actualizar datos de un cliente.
+ * - Lee :id de req.params y { nombre, ciudad, tipo } de req.body.
+ * - Devuelve 404 si no encuentra el cliente.
+ * Endpoint: PUT /api/cliente/:id
  */
 export const actualizarCliente = (req, res) => {
   const { id } = req.params;
@@ -75,7 +89,10 @@ export const actualizarCliente = (req, res) => {
 };
 
 /**
- * 6. Actualizar sólo el estado/tipo de un cliente
+ * Actualizar solo el estado/tipo de un cliente.
+ * - Lee :id y espera { status } en req.body.
+ * - Útil para cambiar cliente a 'premium', 'normal' o 'inactive'.
+ * Endpoint: PUT /api/cliente/:id/estado
  */
 export const actualizarEstadoCliente = (req, res) => {
   const { id } = req.params;
@@ -90,7 +107,10 @@ export const actualizarEstadoCliente = (req, res) => {
 };
 
 /**
- * 5. Eliminar (desactivar) un cliente
+ * Desactivar (eliminar) un cliente.
+ * - Lee :id de la ruta.
+ * - Implementa un soft delete (flag de desactivación) o eliminación física.
+ * Endpoint: DELETE /api/cliente/:id
  */
 export const eliminarCliente = (req, res) => {
   const { id } = req.params;
