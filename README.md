@@ -42,14 +42,13 @@ Antes de comenzar, asegúrate de tener instalado:
    ```
 
 3. En config/db.js asegurate de ajustar las siguientes variables:
-
-   ```
+```
   host: 'localhost',
   user: 'tu usuario',
   password: 'tu contraseña',
   database: 'nombre de tu database'
-   ```
 
+```
 4. Asegúrate de crear la base de datos y ejecutar los scripts de esquema y datos de prueba (ubicados en `/database`).
 
 ---
