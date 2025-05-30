@@ -1,39 +1,73 @@
+
 import * as ventaModel from '../models/ventaModel.js';
 
-export function crearVenta(req, res) {
-  // Extrae Clienteid y productos del cuerpo de la petición
-  const { Clienteid, productos } = req.body;
+/**
+ * 7. Registrar un nuevo pedido/venta
+ * POST /api/venta
+ */
+export const crearVenta = (req, res) => {
+  const { clienteId, productos } = req.body;
+  if (!clienteId || !Array.isArray(productos) || productos.length === 0) {
+    return res.status(400).json({ error: 'clienteId y productos son obligatorios' });
+  }
 
-  // Calcula el total sumando (precio * cantidad) de cada producto, redondeado a 2 decimales
-  const total = Math.round(
-    productos.reduce((sum, item) => sum + item.precio * item.cantidad, 0) * 100
-  ) / 100;
+  // Calcula el total
+  const total = productos.reduce(
+    (sum, item) => sum + item.precio * item.cantidad,
+    0
+  );
 
-  // Crea la venta en la base de datos usando el modelo ventaModel
-  ventaModel.createVenta({ Clienteid, total }, (err, result) => {
+  // Inserta cabecera de venta
+  ventaModel.createVenta({ clienteId, total }, (err, result) => {
     if (err) {
-      // Si hay error al crear la venta, lo muestra y responde con error 500
-      console.error(err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error creando venta:', err);
+      return res.status(500).json({ error: 'Error interno al crear la venta' });
     }
-    // Obtiene el ID de la venta recién creada
-    const Ventasid = result.insertId;
+    const ventaId = result.insertId;
 
-    // Por cada producto, crea un detalle de venta asociado a la venta principal
+    // Inserta cada línea de detalleVenta
     productos.forEach(item => {
-      // Calcula el subtotal de cada producto (precio * cantidad), redondeado a 2 decimales
-      const subtotal = Math.round(item.precio * item.cantidad * 100) / 100;
-      // Inserta el detalle de la venta en la base de datos
+      const subtotal = item.precio * item.cantidad;
       ventaModel.createDetalleVenta(
-        { Ventasid, Productosid: item.id, cantidad: item.cantidad, subtotal },
-        (errDet) => {
-          // Si hay error al insertar el detalle, lo muestra en consola
-          if (errDet) console.error('Error detalleVenta:', errDet);
+        {
+          ventaId,
+          productoId: item.id,
+          cantidad: item.cantidad,
+          subtotal
+        },
+        errDet => {
+          if (errDet) {
+            console.error(`Error al crear detalle para venta ${ventaId}:`, errDet);
+          }
         }
       );
     });
-
-    // Responde al cliente con el ID de la venta y el total calculado
-    res.status(201).json({ Ventasid, total });
+    // Responde con el id de la venta y el total
+    res.status(201).json({ ventaId, total });
   });
-}
+};
+/**
+ * 8. Consultar detalle de pedidos de un cliente específico para una fecha determinada
+ * GET /api/venta/cliente/:clienteId/fecha/:fecha
+ */
+export const obtenerVentasPorClienteFecha = (req, res) => {
+  const { clienteId, fecha } = req.params;
+  if (!clienteId || !fecha) {
+    return res
+      .status(400)
+      .json({ error: 'Se requieren clienteId y fecha en la ruta (YYYY-MM-DD)' });
+  }
+
+  ventaModel.getVentasPorClienteFecha(clienteId, fecha, (err, rows) => {
+    if (err) {
+      console.error('Error consultando ventas:', err);
+      return res.status(500).json({ error: 'Error interno al consultar ventas' });
+    }
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: 'No se encontraron ventas para ese cliente y fecha' });
+    }
+    res.json(rows);
+  });
+};

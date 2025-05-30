@@ -1,6 +1,8 @@
 import express from 'express';
 import clienteRoutes from './routes/clientes.js';
 import ventasRoutes from './routes/ventas.js';
+import cors from 'cors';
+
 
 
 const app = express();
@@ -8,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 
 
 app.use(express.json());
+app.use(cors({ origin: '*' }));
 
 app.use('/api/cliente', clienteRoutes); 
 app.use('/api/ventas', ventasRoutes);

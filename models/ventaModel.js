@@ -1,62 +1,76 @@
+
 import db from '../config/db.js';
 
+/**
+ * 7. Registrar un nuevo pedido/venta
+ * Inserta en `ventas` y devuelve el insertId para luego usarlo en detalleVenta.
+ */
+export const createVenta = (ventaData, callback) => {
+  const { clienteId, total } = ventaData;
+  const sql = 'INSERT INTO ventas (Clienteid, fecha, total) VALUES (?, NOW(), ?)';
+  db.query(sql, [clienteId, total], callback);
+};
+
+/**
+ * 7b. Registrar cada línea de detalle de la venta
+ */
+export const createDetalleVenta = (detalleData, callback) => {
+  const { ventaId, productoId, cantidad, subtotal } = detalleData;
+  const sql = `
+    INSERT INTO detalleVenta (Ventasid, Productosid, cantidad, subtotal)
+    VALUES (?, ?, ?, ?)
+  `;
+  db.query(sql, [ventaId, productoId, cantidad, subtotal], callback);
+};
+
+/**
+ * 8. Consultar detalle de pedidos por cliente y fecha
+ * Retorna cada venta con sus detalles de productos para un cliente en un día dado.
+ */
+export const getVentasPorClienteFecha = (clienteId, fecha, callback) => {
+  const sql = `
+    SELECT
+      v.id            AS ventaId,
+      DATE(v.fecha)   AS fecha,
+      dv.Productosid  AS productoId,
+      dv.cantidad     AS cantidad,
+      dv.subtotal     AS subtotal
+    FROM ventas v
+    JOIN detalleVenta dv
+      ON v.id = dv.Ventasid
+    WHERE v.Clienteid = ?
+      AND DATE(v.fecha) = ?
+    ORDER BY v.fecha DESC, dv.Productosid
+  `;
+  db.query(sql, [clienteId, fecha], callback);
+};
+
+/**
+ * Opcionales: obtener todas las ventas o por ID
+ */
 export const getAllVentas = (callback) => {
-  db.query('SELECT * FROM ventas', callback);
+  const sql = 'SELECT * FROM ventas';
+  db.query(sql, callback);
 };
 
 export const getVentaById = (id, callback) => {
-  db.query('SELECT * FROM ventas WHERE id = ?', [id], callback);
+  const sql = 'SELECT * FROM ventas WHERE id = ?';
+  db.query(sql, [id], callback);
 };
 
 /**
- * Crea una nueva venta en la base de datos.
- *
- * @param {Object} ventaData - Datos de la venta a registrar.
- * @param {number} ventaData.Clienteid - ID del cliente asociado a la venta.
- * @param {number} ventaData.total - Monto total de la venta.
- * @param {function} callback - Función de callback que maneja la respuesta de la consulta.
+ * Opcional: actualizar total de una venta
  */
-export const createVenta = (ventaData, callback) => {
-  const { Clienteid, total } = ventaData;
-  db.query(
-    'INSERT INTO ventas (Clienteid, fecha, total) VALUES (?, NOW(), ?)',
-    [Clienteid, total],
-    callback
-  );
-};
-
-/**
- * Crea un nuevo registro en la tabla detalleVenta.
- *
- * @param {Object} detalleData - Datos del detalle de la venta.
- * @param {number} detalleData.Ventasid - ID de la venta asociada.
- * @param {number} detalleData.Productosid - ID del producto vendido.
- * @param {number} detalleData.cantidad - Cantidad de productos vendidos.
- * @param {number} detalleData.subtotal - Subtotal de la venta para este producto.
- * @param {function} callback - Función de callback que maneja el resultado de la consulta.
- */
-export const createDetalleVenta = (detalleData, callback) => {
-  const { Ventasid, Productosid, cantidad, subtotal } = detalleData;
-  db.query(
-    'INSERT INTO detalleVenta (Ventasid, Productosid, cantidad, subtotal) VALUES (?, ?, ?, ?)',
-    [Ventasid, Productosid, cantidad, subtotal],
-    callback
-  );
-};
-
 export const updateVenta = (id, ventaData, callback) => {
   const { total } = ventaData;
-  db.query(
-    'UPDATE ventas SET total = ? WHERE id = ?',
-    [total, id],
-    callback
-  );
+  const sql = 'UPDATE ventas SET total = ? WHERE id = ?';
+  db.query(sql, [total, id], callback);
 };
 
+/**
+ * Opcional: eliminar venta
+ */
 export const deleteVenta = (id, callback) => {
-  db.query(
-    'DELETE FROM ventas WHERE id = ?',
-    [id],
-    callback
-  );
+  const sql = 'DELETE FROM ventas WHERE id = ?';
+  db.query(sql, [id], callback);
 };

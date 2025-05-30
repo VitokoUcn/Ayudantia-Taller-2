@@ -17,7 +17,6 @@ export function validateVenta(req, res, next) {
   const {  productos } = req.body;
   const errors = [];
 
-  
   if (!Array.isArray(productos) || productos.length === 0) {
     errors.push({ field: 'productos', message: 'Debe listar al menos un ítem.' });
   } else {
