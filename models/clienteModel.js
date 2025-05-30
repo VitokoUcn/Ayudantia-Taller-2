@@ -14,15 +14,16 @@ export const getAllClientes = (callback) => {
  */
 export const getClientesNormales = (callback) => {
   const sql = 'SELECT * FROM Cliente WHERE tipo = ?';
-  db.query(sql, ['1'], callback);
+  db.query(sql, [1], callback);
 };
+
 
 /**
  * 10. Listar clientes Premium
  */
 export const getClientesPremium = (callback) => {
   const sql = 'SELECT * FROM Cliente WHERE tipo = ?';
-  db.query(sql, ['2'], callback);
+  db.query(sql, [2], callback);
 };
 
 /**
@@ -40,16 +41,20 @@ export const getClienteById = (id, callback) => {
 export const createCliente = (clienteData, callback) => {
   const { nombre, ciudad, tipo = 'normal' } = clienteData;
   const sql = 'INSERT INTO Cliente (nombre, ciudad, tipo) VALUES (?, ?, ?)';
-  db.query(sql, [nombre, email, tipo], callback);
+  db.query(sql, [nombre, ciudad, tipo], callback);
 };
 
 /**
  * 6. Actualizar datos completos de un cliente
  */
 export const updateCliente = (id, clienteData, callback) => {
-  const { nombre, email } = clienteData;
-  const sql = 'UPDATE Cliente SET nombre = ?, ciudad = ? WHERE id = ?';
-  db.query(sql, [nombre, ciudad, id], callback);
+  const { nombre, ciudad, tipo } = clienteData;
+  const sql = `
+    UPDATE Cliente
+    SET nombre = ?, ciudad = ?, tipo = ?
+    WHERE id = ?
+  `;
+  db.query(sql, [nombre, ciudad, tipo, id], callback);
 };
 
 /**

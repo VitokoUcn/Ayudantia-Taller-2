@@ -17,19 +17,19 @@ import {
  * - Premium:    GET /api/cliente?type=premium o bien GET /api/cliente/premium
  */
 export const obtenerClientes = (req, res) => {
-  const { type } = req.query;
+  const type = req.query.type; // '1', '2' o undefined
 
-  const callback = (err, results) => {
+  const cb = (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   };
 
   if (type === '1') {
-    getClientesNormales(callback);
+    getClientesNormales(cb);
   } else if (type === '2') {
-    getClientesPremium(callback);
+    getClientesPremium(cb);
   } else {
-    getAllClientes(callback);
+    getAllClientes(cb);
   }
 };
 
@@ -64,7 +64,8 @@ export const registrarCliente = (req, res) => {
  */
 export const actualizarCliente = (req, res) => {
   const { id } = req.params;
-  updateCliente(id, req.body, (err, result) => {
+  const { nombre, ciudad, tipo } = req.body;
+  updateCliente(id, { nombre, ciudad, tipo }, (err, result) => {
     if (err) return res.status(500).json({ error: err.message });
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Cliente no encontrado' });
